@@ -1,0 +1,43 @@
+syntax = "proto2";
+
+option java_multiple_files = false;
+option java_package = "org.boutry.common";
+option java_outer_classname = "BoutryUtilities";
+
+package Utilities;
+
+service Time {
+  rpc GetTime(TimeRequest) returns (stream TimeResponse) {}
+}
+
+message TimeRequest {
+  required Locale locale = 1;
+  optional uint32 number_of_responses = 2 [default = 5];
+}
+
+message TimeResponse {
+  required string time = 1;
+}
+
+enum Locale {
+  FRANCE = 0;
+  JAPAN = 1;
+  ENGLAND = 2;
+}
+
+service ImageCropper {
+  rpc CropImage(CropImageRequest) returns (stream CropImageResponse) {}
+}
+
+
+message CropImageRequest {
+  required bytes image = 1;
+  required uint32 n_width = 2;
+  required uint32 n_height = 3;
+}
+
+message CropImageResponse {
+  required bytes image = 1;
+  required uint32 x_position = 2;
+  required uint32 y_position = 3;
+}
