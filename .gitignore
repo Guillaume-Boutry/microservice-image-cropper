@@ -35,6 +35,11 @@ pom.xml.releaseBackup
 pom.xml.versionsBackup
 release.properties
 
+# mvn wrapper
 */mvnw
 */mvnw.cmd
-*/.mvw/
+*/.mvn/
+
+# py garbage files
+*/__pycache__/
+*/*.pyc
