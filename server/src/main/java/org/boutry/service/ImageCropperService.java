@@ -24,6 +24,7 @@ public class ImageCropperService extends ImageCropperGrpc.ImageCropperImplBase {
 
     @Override
     public void cropImage(CropImageRequest request, StreamObserver<CropImageResponse> responseObserver) {
+        long start = System.nanoTime();
         byte[] buffer = request.getImage().toByteArray();
         int nWidth = request.getNWidth();
         int nHeight = request.getNHeight();
@@ -38,12 +39,18 @@ public class ImageCropperService extends ImageCropperGrpc.ImageCropperImplBase {
         int height = bufferedImage.getHeight();
         int width = bufferedImage.getWidth();
 
-        int widthToCrop = Math.round(width / (float) nWidth);
-        int heightToCrop = Math.round(height / (float) nHeight);
+        int widthToCrop = (int) Math.floor(width / (double) nWidth);
+        int heightToCrop = (int) Math.floor(height / (double) nHeight);
         LOGGER.info(String.format("Image to crop : size(%d,%d), croppedSize(%d,%d), nCrop(%d,%d)", width, height, widthToCrop, heightToCrop, nWidth, nHeight));
         for (int i = 0; i < nWidth; i++) {
             for (int j = 0; j < nHeight; j++) {
-                BufferedImage cropped = imageCropper.cropImage(bufferedImage, i, j, widthToCrop, heightToCrop);
+                BufferedImage cropped;
+                try {
+                    cropped = imageCropper.cropImage(bufferedImage, i, j, widthToCrop, heightToCrop);
+                } catch (Exception e) {
+                    responseObserver.onError(e);
+                    continue;
+                }
                 byte[] croppedByteArray;
                 try {
                     croppedByteArray = imageCropper.toByteArray(cropped);
@@ -51,6 +58,7 @@ public class ImageCropperService extends ImageCropperGrpc.ImageCropperImplBase {
                     responseObserver.onError(new Exception(String.format("Error while writing (%d,%d)", i, j), e));
                     continue;
                 }
+                LOGGER.debug(String.format("Image cropped : size(%d,%d), gridPos(%d,%d)", widthToCrop, heightToCrop, i, j));
                 responseObserver.onNext(CropImageResponse
                         .newBuilder()
                         .setImage(ByteString.copyFrom(croppedByteArray))
@@ -59,7 +67,7 @@ public class ImageCropperService extends ImageCropperGrpc.ImageCropperImplBase {
                         .build());
             }
         }
-
+        LOGGER.info("Total time: " + (System.nanoTime() - start) / 1_000_000d + "ms");
 
         responseObserver.onCompleted();
 

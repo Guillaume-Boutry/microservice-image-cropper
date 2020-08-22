@@ -23,13 +23,16 @@ def image_request(channel):
         data = fd.read()
     crop_image_request = interface_pb2.CropImageRequest()
     crop_image_request.image = data
-    crop_image_request.n_width = 7
-    crop_image_request.n_height = 9
+    crop_image_request.n_width = 32
+    crop_image_request.n_height = 52
     stub = interface_pb2_grpc.ImageCropperStub(channel)
-    print("Sending request file: leelou, n_width: 7, n_height: 9")
+    print(f"Sending request file: leelou, n_width: {crop_image_request.n_width}, n_height: {crop_image_request.n_height}")
+    start = time.time()
     for response in stub.CropImage(crop_image_request):
-        with open(f'/home/guillaume/Desktop/leelou_{response.x_position}_{response.y_position}.png', 'wb') as fd:
+        with open(f'/home/guillaume/Desktop/images/leelou_{response.x_position}_{response.y_position}.png', 'wb') as fd:
+            print(f"Received leelou_{response.x_position}_{response.y_position}.png")
             fd.write(response.image)
+    print(time.time() - start)
 
 if __name__ == "__main__":
     channel = grpc.insecure_channel('127.0.0.1:9000')

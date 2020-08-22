@@ -20,8 +20,6 @@ public class Interceptor implements ServerInterceptor {
     public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,
                                                                  ServerCallHandler<ReqT, RespT> next) {
         LOGGER.info("Intercepting call " + call.getMethodDescriptor());
-        LOGGER.info("Headers " + headers);
-        LOGGER.info("Call " + call);
         return next.startCall(call, headers);
     }
 }
