@@ -36,37 +36,21 @@ public class ImageCropperService extends ImageCropperGrpc.ImageCropperImplBase {
             responseObserver.onCompleted();
             return;
         }
-        int height = bufferedImage.getHeight();
-        int width = bufferedImage.getWidth();
 
-        int widthToCrop = (int) Math.floor(width / (double) nWidth);
-        int heightToCrop = (int) Math.floor(height / (double) nHeight);
-        LOGGER.info(String.format("Image to crop : size(%d,%d), croppedSize(%d,%d), nCrop(%d,%d)", width, height, widthToCrop, heightToCrop, nWidth, nHeight));
-        for (int i = 0; i < nWidth; i++) {
-            for (int j = 0; j < nHeight; j++) {
-                BufferedImage cropped;
-                try {
-                    cropped = imageCropper.cropImage(bufferedImage, i, j, widthToCrop, heightToCrop);
-                } catch (Exception e) {
-                    responseObserver.onError(e);
-                    continue;
-                }
-                byte[] croppedByteArray;
-                try {
-                    croppedByteArray = imageCropper.toByteArray(cropped);
-                } catch (IOException e) {
-                    responseObserver.onError(new Exception(String.format("Error while writing (%d,%d)", i, j), e));
-                    continue;
-                }
-                LOGGER.debug(String.format("Image cropped : size(%d,%d), gridPos(%d,%d)", widthToCrop, heightToCrop, i, j));
+        imageCropper.cropImages(bufferedImage, nWidth, nHeight, (bufferedImage1, xPos, yPos) -> {
+            try {
+                LOGGER.debug(String.format("Image cropped : gridPos(%d,%d)", xPos, yPos));
                 responseObserver.onNext(CropImageResponse
                         .newBuilder()
-                        .setImage(ByteString.copyFrom(croppedByteArray))
-                        .setXPosition(i)
-                        .setYPosition(j)
+                        .setImage(ByteString.copyFrom(imageCropper.toByteArray(bufferedImage1)))
+                        .setXPosition(xPos)
+                        .setYPosition(yPos)
                         .build());
+            } catch(IOException e) {
+                responseObserver.onError(e);
             }
-        }
+        });
+
         LOGGER.info("Total time: " + (System.nanoTime() - start) / 1_000_000d + "ms");
 
         responseObserver.onCompleted();
