@@ -23,8 +23,8 @@ def image_request(channel):
         data = fd.read()
     crop_image_request = interface_pb2.CropImageRequest()
     crop_image_request.image = data
-    crop_image_request.n_width = 32
-    crop_image_request.n_height = 52
+    crop_image_request.n_width = 5
+    crop_image_request.n_height = 7
     stub = interface_pb2_grpc.ImageCropperStub(channel)
     print(f"Sending request file: leelou, n_width: {crop_image_request.n_width}, n_height: {crop_image_request.n_height}")
     start = time.time()

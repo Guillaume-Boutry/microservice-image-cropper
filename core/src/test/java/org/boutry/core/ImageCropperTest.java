@@ -1,5 +1,6 @@
 package org.boutry.core;
 
+import org.boutry.wrapper.natimage.NatImage;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -28,10 +29,10 @@ class ImageCropperTest {
 
     @Test
     void cropImage() throws IOException {
-        BufferedImage duck = ImageIO.read(getClass().getResourceAsStream("/duck.jpeg"));
+        NatImage duck = new NatImage(getClass().getResourceAsStream("/duck.jpeg").readAllBytes());
         int nWidth = 2;
         int nHeight = 4;
-        BufferedImage[][] croppedDuck = imageCropper.cropImages(duck, nWidth, nHeight);
+        NatImage[][] croppedDuck = imageCropper.cropImages(duck, nWidth, nHeight);
         assertEquals(croppedDuck.length, nWidth);
         assertEquals(croppedDuck[0].length, nHeight);
     }

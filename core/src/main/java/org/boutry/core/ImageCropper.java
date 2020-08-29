@@ -1,14 +1,11 @@
 package org.boutry.core;
 
 import io.smallrye.common.constraint.NotNull;
+import org.boutry.wrapper.natimage.NatImage;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 
 @ApplicationScoped
 public class ImageCropper {
@@ -16,8 +13,9 @@ public class ImageCropper {
     private static final Logger LOGGER = Logger.getLogger(ImageCropper.class);
 
 
-    public BufferedImage[][] cropImages(@NotNull BufferedImage bufferedImage, int nWidth, int nHeight) {
-        BufferedImage[][] imageArray = new BufferedImage[nWidth][nHeight];
+    public NatImage[][] cropImages(@NotNull NatImage natImage, int nWidth, int nHeight) {
+        BufferedImage bufferedImage = natImage.toBufferedImage();
+        NatImage[][] imageArray = new NatImage[nWidth][nHeight];
         int height = bufferedImage.getHeight();
         int width = bufferedImage.getWidth();
 
@@ -26,7 +24,7 @@ public class ImageCropper {
         for (int i = 0; i < nWidth; i++) {
             for (int j = 0; j < nHeight; j++) {
                 try {
-                    imageArray[i][j] = cropImage(bufferedImage, i, j, widthToCrop, heightToCrop);
+                    imageArray[i][j] = natImage.cropImage(i, j, widthToCrop, heightToCrop);
                 } catch (Exception e) {
                     LOGGER.error(e);
                 }
@@ -36,7 +34,8 @@ public class ImageCropper {
         return imageArray;
     }
 
-    public void cropImages(@NotNull BufferedImage bufferedImage, int nWidth, int nHeight, TriConsumer<BufferedImage, Integer, Integer> callback) {
+    public void cropImages(@NotNull NatImage natImage, int nWidth, int nHeight, TriConsumer<NatImage, Integer, Integer> callback) {
+        BufferedImage bufferedImage = natImage.toBufferedImage();
         int height = bufferedImage.getHeight();
         int width = bufferedImage.getWidth();
 
@@ -45,31 +44,11 @@ public class ImageCropper {
         for (int i = 0; i < nWidth; i++) {
             for (int j = 0; j < nHeight; j++) {
                 try {
-                    callback.accept(cropImage(bufferedImage, i, j, widthToCrop, heightToCrop), i, j);
+                    callback.accept(natImage.cropImage(i, j, widthToCrop, heightToCrop), i, j);
                 } catch (Exception e) {
                     LOGGER.error(e);
                 }
             }
-        }
-    }
-
-
-    private BufferedImage cropImage(@NotNull BufferedImage image, int x, int y, int width, int height) {
-        return image.getSubimage(x * width, y * height, width, height);
-    }
-
-    public BufferedImage fromByteArray(@NotNull byte[] buffer) throws IOException {
-        BufferedImage bufferedImage;
-        try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(buffer)) {
-            bufferedImage = ImageIO.read(byteArrayInputStream);
-        }
-        return bufferedImage;
-    }
-
-    public byte[] toByteArray(@NotNull BufferedImage image) throws IOException {
-        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
-            ImageIO.write(image, "png", byteArrayOutputStream);
-            return byteArrayOutputStream.toByteArray();
         }
     }
 
