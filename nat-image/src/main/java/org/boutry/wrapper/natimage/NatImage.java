@@ -14,15 +14,17 @@ import java.lang.ref.SoftReference;
 public class NatImage {
     private long _handleImage;
     private SoftReference<BufferedImage> softImage;
+
     static {
         try {
             NativeLoader.loadLibrary("natimage");
-        } catch(IOException e) {
+        } catch (IOException e) {
             System.err.println("Unable to load libnativeimage, shutting down...");
             System.err.println(e);
             System.exit(1);
         }
     }
+
     public static void main(String... args) throws IOException, InterruptedException {
         byte[] image = NatImage.class
                 .getResourceAsStream("/leelou_0_0.png")
@@ -39,7 +41,7 @@ public class NatImage {
         for (int i = 0; i < 100; i++) {
             Thread.sleep(100);
         }
-   }
+    }
 
     public NatImage(byte[] image) {
         initPng(image);
@@ -53,8 +55,11 @@ public class NatImage {
     }
 
     public static native boolean isPng(byte[] image);
+
     private native void initPng(byte[] image);
+
     public native byte[] getImage();
+
     private native void dispose();
 
     public NatImage cropImage(int x, int y, int width, int height) {
@@ -67,7 +72,7 @@ public class NatImage {
             BufferedImage bufferedImage;
             try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(getImage())) {
                 bufferedImage = ImageIO.read(byteArrayInputStream);
-            } catch(IOException e) {
+            } catch (IOException e) {
                 //
                 return null;
             }
@@ -81,7 +86,7 @@ public class NatImage {
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
             ImageIO.write(image, "png", byteArrayOutputStream);
             return byteArrayOutputStream.toByteArray();
-        } catch(IOException e) {
+        } catch (IOException e) {
             // silence exception
         }
         return null;

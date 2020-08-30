@@ -1,0 +1,11 @@
+[
+  {
+    "name": "org.boutry.wrapper.natimage.NatImage",
+    "fields": [
+      {
+        "name": "_handleImage",
+        "allowWrite": true
+      }
+    ]
+  }
+]

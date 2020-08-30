@@ -42,7 +42,11 @@ public class ImageCropper {
         int widthToCrop = (int) Math.floor(width / (double) nWidth);
         int heightToCrop = (int) Math.floor(height / (double) nHeight);
         for (int i = 0; i < nWidth; i++) {
+            // Fill the heap for GC show
+            new NatImage(natImage.getImage());
             for (int j = 0; j < nHeight; j++) {
+                // Fill the heap for GC show
+                new NatImage(natImage.getImage());
                 try {
                     callback.accept(natImage.cropImage(i, j, widthToCrop, heightToCrop), i, j);
                 } catch (Exception e) {
